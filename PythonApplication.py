@@ -14,8 +14,8 @@ templates = Jinja2Templates(directory="templates")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "tests.db")
 
-# Сервер будет получать API ключ из переменных окружения Render
-GROQ_KEY = os.getenv("GROQ_API_KEY", "")
+# Берёт ключ из Render, а если его нет (локальный запуск) — использует запасной
+GROQ_KEY = os.getenv("GROQ_API_KEY", "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")
 
 client = OpenAI(
     api_key=GROQ_KEY,
@@ -54,7 +54,8 @@ def init_db():
             student_name TEXT NOT NULL,
             score INTEGER NOT NULL,
             correct_count INTEGER NOT NULL,
-            total_questions INTEGER NOT NULL
+            total_questions INTEGER NOT NULL,
+            answers_json TEXT DEFAULT '{}'
         )
     """)
     
@@ -212,6 +213,24 @@ async def generate_test(
         print(f"ОШИБКА ГЕНЕРАЦИИ: {e}")
         return RedirectResponse(url="/", status_code=303)
 
+@app.get("/view-test/{test_id}", response_class=HTMLResponse)
+async def view_test_details(request: Request, test_id: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT questions_json FROM tests WHERE id = ? AND teacher_username = ?", (test_id, user))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return HTMLResponse(content="<h1>Тест не найден или доступ ограничен</h1>", status_code=404)
+
+    questions = json.loads(row[0])
+    return templates.TemplateResponse(request=request, name="view_test.html", context={"questions": questions, "test_id": test_id})
+
 @app.get("/quiz/{test_id}", response_class=HTMLResponse)
 async def student_quiz(request: Request, test_id: str):
     conn = sqlite3.connect(DB_PATH)
@@ -242,28 +261,21 @@ async def submit_quiz(request: Request, test_id: str, student_name: str = Form(.
     questions = json.loads(row[0])
     correct_count = 0
     total_questions = len(questions)
-    review = []
+    user_answers = {}
 
     for q in questions:
+        q_id = str(q["id"])
         user_ans = form_data.get(f"question_{q['id']}")
-        is_correct = (user_ans == q["correct"])
-        
-        if is_correct:
+        user_answers[q_id] = user_ans
+        if user_ans == q["correct"]:
             correct_count += 1
-            
-        review.append({
-            "question": q["question"],
-            "user_answer": user_ans,
-            "correct_answer": q["correct"],
-            "is_correct": is_correct
-        })
 
     score_percent = int((correct_count / total_questions) * 100)
 
     cursor.execute("""
-        INSERT INTO results (test_id, student_name, score, correct_count, total_questions)
-        VALUES (?, ?, ?, ?, ?)
-    """, (test_id, student_name, score_percent, correct_count, total_questions))
+        INSERT INTO results (test_id, student_name, score, correct_count, total_questions, answers_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (test_id, student_name, score_percent, correct_count, total_questions, json.dumps(user_answers, ensure_ascii=False)))
     
     conn.commit()
     conn.close()
@@ -275,21 +287,24 @@ async def submit_quiz(request: Request, test_id: str, student_name: str = Form(.
             "student_name": student_name,
             "score": score_percent, 
             "correct_count": correct_count, 
-            "total": total_questions,
-            "review": review
+            "total": total_questions
         }
     )
 
 @app.get("/stats/{test_id}", response_class=HTMLResponse)
 async def view_stats(request: Request, test_id: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT student_name, score, correct_count, total_questions FROM results WHERE test_id = ?", (test_id,))
+    cursor.execute("SELECT id, student_name, score, correct_count, total_questions FROM results WHERE test_id = ?", (test_id,))
     rows = cursor.fetchall()
     conn.close()
 
     results_list = [
-        {"student_name": r[0], "score": r[1], "correct_count": r[2], "total_questions": r[3]}
+        {"id": r[0], "student_name": r[1], "score": r[2], "correct_count": r[3], "total_questions": r[4]}
         for r in rows
     ]
 
@@ -297,6 +312,52 @@ async def view_stats(request: Request, test_id: str):
         request=request,
         name="stats.html",
         context={"results": results_list, "test_id": test_id}
+    )
+
+@app.get("/stats/{test_id}/student/{result_id}", response_class=HTMLResponse)
+async def view_student_detail(request: Request, test_id: str, result_id: int):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT questions_json FROM tests WHERE id = ?", (test_id,))
+    test_row = cursor.fetchone()
+    
+    cursor.execute("SELECT student_name, score, correct_count, total_questions, answers_json FROM results WHERE id = ?", (result_id,))
+    res_row = cursor.fetchone()
+    conn.close()
+
+    if not test_row or not res_row:
+        return HTMLResponse(content="<h1>Запись не найдена</h1>", status_code=404)
+
+    questions = json.loads(test_row[0])
+    student_name, score, correct_count, total_questions, answers_raw = res_row
+    user_answers = json.loads(answers_raw) if answers_raw else {}
+
+    detailed_questions = []
+    for q in questions:
+        q_id = str(q["id"])
+        detailed_questions.append({
+            "question": q["question"],
+            "options": q["options"],
+            "correct": q["correct"],
+            "user_answer": user_answers.get(q_id)
+        })
+
+    return templates.TemplateResponse(
+        request=request,
+        name="student_detail.html",
+        context={
+            "test_id": test_id,
+            "student_name": student_name,
+            "score": score,
+            "correct_count": correct_count,
+            "total": total_questions,
+            "detailed_questions": detailed_questions
+        }
     )
 
 if __name__ == "__main__":
