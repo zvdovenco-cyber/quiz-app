@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты теста</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+
+        <!-- Карточка итогового балла -->
+        <div class="bg-white p-8 rounded-xl shadow-md text-center">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Тестирование завершено</h1>
+            <p class="text-gray-500 text-sm mb-4">Студент: <strong>{{ student_name }}</strong></p>
+
+            <div class="text-6xl font-extrabold {% if score >= 70 %}text-green-600{% else %}text-red-500{% endif %} mb-2">
+                {{ score }}%
+            </div>
+
+            <p class="text-gray-700 font-medium">Правильно отвечено: {{ correct_count }} из {{ total }}</p>
+        </div>
+
+        <!-- Разбор вопросов и ошибок -->
+        <div class="bg-white p-8 rounded-xl shadow-md space-y-6">
+            <h2 class="text-xl font-bold text-gray-800 border-b pb-4">Подробный разбор</h2>
+
+            {% for item in review %}
+            <div class="p-4 rounded-lg border {% if item.is_correct %}border-green-300 bg-green-50{% else %}border-red-300 bg-red-50{% endif %}">
+                <div class="flex items-start justify-between">
+                    <h3 class="font-semibold text-gray-900 mb-2">
+                        {{ loop.index }}. {{ item.question }}
+                    </h3>
+                    <span class="text-xs px-2 py-1 rounded font-bold {% if item.is_correct %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
+                        {% if item.is_correct %}✓ Верно{% else %}✗ Ошибка{% endif %}
+                    </span>
+                </div>
+
+                <div class="text-sm space-y-1 mt-2">
+                    <p class="text-gray-700">
+                        Ваш ответ:
+                        <span class="font-semibold {% if item.is_correct %}text-green-700{% else %}text-red-700 line-through{% endif %}">
+                            {{ item.user_answer or "Не выбран" }}
+                        </span>
+                    </p>
+
+                    {% if not item.is_correct %}
+                    <p class="text-gray-700">
+                        Правильный ответ: <span class="font-semibold text-green-700">{{ item.correct_answer }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="pt-4 text-center">
+                <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md">
+                    На главную
+                </a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
