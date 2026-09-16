@@ -2,43 +2,173 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Прохождение теста</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen py-10 px-4">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Тестирование</h1>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        <form action="/submit-quiz/{{ test_id }}" method="POST" class="space-y-6">
-            <!-- Поле для имени студента -->
-            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                <label class="block text-sm font-semibold text-blue-900 mb-1">
-                    Ваше ФИО / Имя:
-                </label>
-                <input type="text" name="student_name" required placeholder="Иван Иванов"
-                       class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #111827;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+            input[type="text"]:focus {
+                border-color: #2563eb;
+            }
+
+        .question-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #111827;
+            line-height: 1.4;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+            .option-label:hover {
+                background-color: #eff6ff;
+                border-color: #bfdbfe;
+            }
+
+        input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+            accent-color: #2563eb;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+            .btn-submit:hover {
+                background-color: #1d4ed8;
+            }
+
+        /* Мобильные оптимизации */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .question-title {
+                font-size: 1rem;
+            }
+
+            .option-label {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тестирование</h1>
+        <form action="/submit-quiz/{{ test_id }}" method="post">
+            <div class="card">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="student_name">Ваше ФИО или имя:</label>
+                    <input type="text" id="student_name" name="student_name" required placeholder="Введите ваше имя...">
+                </div>
             </div>
 
             {% for q in questions %}
-            <div class="border border-gray-200 rounded-lg p-5 bg-gray-50">
-                <h3 class="font-semibold text-lg text-gray-900 mb-3">
-                    {{ loop.index }}. {{ q.question }}
-                </h3>
-
-                <div class="space-y-2">
-                    {% for option in q.options %}
-                    <label class="flex items-center space-x-3 p-3 rounded-lg border bg-white hover:bg-gray-100 cursor-pointer transition">
-                        <input type="radio" name="question_{{ q.id }}" value="{{ option }}" required class="h-4 w-4 text-blue-600">
-                        <span class="text-gray-700 text-sm">{{ option }}</span>
+            <div class="card">
+                <div class="question-title">{{ loop.index }}. {{ q.question }}</div>
+                <div>
+                    {% for opt in q.options %}
+                    <label class="option-label">
+                        <input type="radio" name="question_{{ q.id }}" value="{{ opt }}" required>
+                        <span>{{ opt }}</span>
                     </label>
                     {% endfor %}
                 </div>
             </div>
             {% endfor %}
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md">
-                Отправить ответы
-            </button>
+            <button type="submit" class="btn-submit">Отправить ответы</button>
         </form>
     </div>
 </body>

@@ -2,36 +2,145 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход в систему</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            margin-bottom: 20px;
+            color: #111827;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+            input:focus {
+                border-color: #2563eb;
+            }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+            .btn:hover {
+                background-color: #1d4ed8;
+            }
+
+        .error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+            .footer-link a {
+                color: #2563eb;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .footer-link a:hover {
+                    text-decoration: underline;
+                }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px 16px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Вход для преподавателя</h1>
+<body>
+    <div class="card">
+        <h1>Вход преподавателя</h1>
 
         {% if error %}
-        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-            {{ error }}
-        </div>
+        <div class="error">{{ error }}</div>
         {% endif %}
 
-        <form action="/login" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Логин:</label>
-                <input type="text" name="username" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label>Логин:</label>
+                <input type="text" name="username" required placeholder="Введите логин...">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Пароль:</label>
-                <input type="password" name="password" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <div class="form-group">
+                <label>Пароль:</label>
+                <input type="password" name="password" required placeholder="Введите пароль...">
             </div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition">
-                Войти
-            </button>
+            <button type="submit" class="btn">Войти</button>
         </form>
 
-        <p class="text-xs text-center text-gray-500 mt-4">
-            Нет аккаунта? <a href="/register" class="text-blue-600 font-semibold underline">Зарегистрироваться</a>
-        </p>
+        <div class="footer-link">
+            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+        </div>
     </div>
 </body>
 </html>

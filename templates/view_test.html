@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр теста {{ test_id }}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #111827;
+            font-size: 1.8rem;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background-color: #f9fafb;
+        }
+
+            .option-item.correct {
+                background-color: #dcfce7;
+                border-color: #86efac;
+                color: #166534;
+                font-weight: 600;
+            }
+
+        .badge-correct {
+            float: right;
+            font-size: 0.8rem;
+            background-color: #16a34a;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+            .btn-back:hover {
+                background-color: #1d4ed8;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Просмотр теста (ID: {{ test_id }})</h1>
+            <a href="/" class="btn-back">Назад в кабинет</a>
+        </div>
+
+        {% for q in questions %}
+        <div class="card">
+            <div class="question-title">{{ loop.index }}. {{ q.question }}</div>
+            <ul class="options-list">
+                {% for opt in q.options %}
+                <li class="option-item {% if opt == q.correct %}correct{% endif %}">
+                    {{ opt }}
+                    {% if opt == q.correct %}
+                    <span class="badge-correct">Правильный ответ</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -2,63 +2,116 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Результаты теста</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результат теста</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        .student-name {
+            font-size: 1.05rem;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+            .student-name strong {
+                color: #1f2937;
+            }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #f9fafb;
+            border: 4px solid #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.3rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            color: #2563eb;
+        }
+
+        .details {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+            .details strong {
+                color: #2563eb;
+                font-size: 1.2rem;
+            }
+
+        .info-box {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px 16px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-10 px-4">
-    <div class="max-w-2xl mx-auto space-y-6">
+<body>
+    <div class="card">
+        <h1>Тест завершен!</h1>
+        <div class="student-name">Ученик: <strong>{{ student_name }}</strong></div>
 
-        <!-- Карточка итогового балла -->
-        <div class="bg-white p-8 rounded-xl shadow-md text-center">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Тестирование завершено</h1>
-            <p class="text-gray-500 text-sm mb-4">Студент: <strong>{{ student_name }}</strong></p>
-
-            <div class="text-6xl font-extrabold {% if score >= 70 %}text-green-600{% else %}text-red-500{% endif %} mb-2">
-                {{ score }}%
-            </div>
-
-            <p class="text-gray-700 font-medium">Правильно отвечено: {{ correct_count }} из {{ total }}</p>
+        <div class="score-circle">
+            {{ score }}%
         </div>
 
-        <!-- Разбор вопросов и ошибок -->
-        <div class="bg-white p-8 rounded-xl shadow-md space-y-6">
-            <h2 class="text-xl font-bold text-gray-800 border-b pb-4">Подробный разбор</h2>
-
-            {% for item in review %}
-            <div class="p-4 rounded-lg border {% if item.is_correct %}border-green-300 bg-green-50{% else %}border-red-300 bg-red-50{% endif %}">
-                <div class="flex items-start justify-between">
-                    <h3 class="font-semibold text-gray-900 mb-2">
-                        {{ loop.index }}. {{ item.question }}
-                    </h3>
-                    <span class="text-xs px-2 py-1 rounded font-bold {% if item.is_correct %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
-                        {% if item.is_correct %}✓ Верно{% else %}✗ Ошибка{% endif %}
-                    </span>
-                </div>
-
-                <div class="text-sm space-y-1 mt-2">
-                    <p class="text-gray-700">
-                        Ваш ответ:
-                        <span class="font-semibold {% if item.is_correct %}text-green-700{% else %}text-red-700 line-through{% endif %}">
-                            {{ item.user_answer or "Не выбран" }}
-                        </span>
-                    </p>
-
-                    {% if not item.is_correct %}
-                    <p class="text-gray-700">
-                        Правильный ответ: <span class="font-semibold text-green-700">{{ item.correct_answer }}</span>
-                    </p>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-
-            <div class="pt-4 text-center">
-                <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md">
-                    На главную
-                </a>
-            </div>
+        <div class="details">
+            Правильных ответов: <strong>{{ correct_count }}</strong> из <strong>{{ total }}</strong>
         </div>
 
+        <div class="info-box">
+            Ваши результаты сохранены в системе преподавателя.
+        </div>
     </div>
 </body>
 </html>

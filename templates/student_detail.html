@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ответы ученика — {{ student_name }}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #111827;
+            font-size: 1.6rem;
+        }
+
+        .student-meta {
+            color: #6b7280;
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: #111827;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background-color: #f9fafb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+            .option-item.user-correct {
+                background-color: #dcfce7;
+                border-color: #86efac;
+                color: #166534;
+                font-weight: 600;
+            }
+
+            .option-item.user-wrong {
+                background-color: #fee2e2;
+                border-color: #fca5a5;
+                color: #991b1b;
+                font-weight: 600;
+            }
+
+            .option-item.should-be-correct {
+                border: 2px dashed #2563eb;
+                background-color: #eff6ff;
+                color: #1d4ed8;
+                font-weight: 600;
+            }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-correct {
+            background-color: #16a34a;
+            color: white;
+        }
+
+        .badge-wrong {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .badge-info {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+            .btn-back:hover {
+                background-color: #1d4ed8;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Ученик: {{ student_name }}</h1>
+                <div class="student-meta">Результат: <strong>{{ score }}%</strong> ({{ correct_count }} из {{ total }})</div>
+            </div>
+            <a href="/stats/{{ test_id }}" class="btn-back">Назад к статистике</a>
+        </div>
+
+        {% for item in detailed_questions %}
+        <div class="card">
+            <div class="question-title">{{ loop.index }}. {{ item.question }}</div>
+            <ul class="options-list">
+                {% for opt in item.options %}
+                {% set is_selected = (opt == item.user_answer) %}
+                {% set is_correct = (opt == item.correct) %}
+
+                {% if is_selected and is_correct %}
+                <li class="option-item user-correct">
+                    <span>{{ opt }}</span>
+                    <span class="badge badge-correct">Ответ ученика (Верно)</span>
+                </li>
+                {% elif is_selected and not is_correct %}
+                <li class="option-item user-wrong">
+                    <span>{{ opt }}</span>
+                    <span class="badge badge-wrong">Ответ ученика (Неверно)</span>
+                </li>
+                {% elif not is_selected and is_correct %}
+                <li class="option-item should-be-correct">
+                    <span>{{ opt }}</span>
+                    <span class="badge badge-info">Правильный ответ</span>
+                </li>
+                {% else %}
+                <li class="option-item">
+                    <span>{{ opt }}</span>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
